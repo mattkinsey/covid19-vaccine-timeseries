@@ -22,8 +22,9 @@ jobs:
       run: |-
         curl https://covid.cdc.gov/covid-data-tracker/COVIDData/getAjaxData?id=vaccination_data | jq .vaccination_data | \
         python -c "import sys; import pandas; pandas.read_json(sys.stdin.read()).to_csv('current_daily_data.csv', index=False)"
-        LAST_DATE=$(head -n2 current.csv | tail -n1 | cut -f1 -d','); cp current_daily_data.csv daily_data/${LAST_DATE}.csv
-        python -c "import pandas as pd; import glob; pd.concat([pd.read_csv(f) for f in glob.glob('daily_data/*.csv')]).to_csv('vacc-timeseries.csv')"
+        LAST_DATE=$(head -n2 current_daily_data.csv | tail -n1 | cut -f1 -d','); cp current_daily_data.csv daily_data/${LAST_DATE}.csv
+        python -c "import pandas as pd; import glob; pd.concat([pd.read_csv(f) for f in glob.glob('daily_data/*.csv')])\
+                   .sort_values(['Location','Date']).to_csv('vacc-timeseries.csv', index=False)"
     - name: Commit and push if it changed
       run: |-
         git config user.name "Automated"
