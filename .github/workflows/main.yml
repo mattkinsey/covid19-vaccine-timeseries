@@ -21,8 +21,9 @@ jobs:
     - name: Fetch latest data
       run: |-
         curl https://covid.cdc.gov/covid-data-tracker/COVIDData/getAjaxData?id=vaccination_data | jq .vaccination_data | \
-        python -c "import sys; import pandas; pandas.read_json(sys.stdin.read()).to_csv('current.csv', index=False)"
-        LAST_DATE=$(head -n2 current.csv | tail -n1 | cut -f1 -d','); cp current.csv daily_data/${LAST_DATE}.csv
+        python -c "import sys; import pandas; pandas.read_json(sys.stdin.read()).to_csv('current_daily_data.csv', index=False)"
+        LAST_DATE=$(head -n2 current.csv | tail -n1 | cut -f1 -d','); cp current_daily_data.csv daily_data/${LAST_DATE}.csv
+        awk '(NR == 1) || (FNR > 1)' daily_data/*.csv > vacc-timeseries.csv
     - name: Commit and push if it changed
       run: |-
         git config user.name "Automated"
